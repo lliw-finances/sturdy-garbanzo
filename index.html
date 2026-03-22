@@ -1034,9 +1034,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <input class="pw-key-input" id="pw-key-input" placeholder="LLIW-XXXX-XXXX" maxlength="14">
     <div class="pw-err" id="pw-err">Chave inválida ou já utilizada.</div>
     <button class="btn btn-accent" style="width:100%;padding:14px;font-size:14px;" onclick="activateKey()">Ativar Chave</button>
-    <div style="margin-top:14px;text-align:center;">
-      <button onclick="resetTrialForTest()" style="background:none;border:none;color:var(--text4);font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;">Reiniciar período de teste</button>
-    </div>
+
   </div>
 </div>
 
@@ -1058,7 +1056,14 @@ const S={
   estrategia: 'avalanche',
   meta: parseFloat(localStorage.getItem('lliw_meta')||'500'),
 };
-const VALID_KEYS = ['LLIW-2024-X7K9','LLIW-LIFE-AB3Z','LLIW-TEST-1234','LLIW-DEMO-9999'];
+
+// ═══ SEGURANÇA: escape HTML para prevenir XSS ═══
+function escHTML(str){
+  if(typeof str!=='string') return String(str||'');
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
+const VALID_KEYS = []; // Chaves validadas no Firebase Console
 const USERS = {}; // Credenciais gerenciadas pelo Firebase futuramente
 const fBRL = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
 const fPct = v => (v||0).toFixed(1)+'%';
@@ -1073,12 +1078,25 @@ function save(){
   localStorage.setItem('lliw_meta',S.meta);
   // Salvar na nuvem Firebase
   if(S.user&&S.user.uid&&window.fbSave){
+    // Sanitizar e limitar dados antes de enviar ao Firestore
+    const sanitize=(arr,max)=>(arr||[]).slice(-max).map(item=>{
+      const clean={};
+      Object.keys(item).forEach(k=>{
+        const v=item[k];
+        if(typeof v==='string') clean[k]=v.substring(0,500);
+        else if(typeof v==='number') clean[k]=isNaN(v)?0:v;
+        else if(typeof v==='boolean') clean[k]=v;
+        else if(Array.isArray(v)) clean[k]=v.slice(-50);
+        else if(v!==null&&v!==undefined) clean[k]=v;
+      });
+      return clean;
+    });
     window.fbSave(S.user.uid,{
-      recs:S.recs,
-      desps:S.desps,
-      ativos:S.ativos,
-      dividas:S.dividas,
-      diario:S.diario,
+      recs:sanitize(S.recs,500),
+      desps:sanitize(S.desps,500),
+      ativos:sanitize(S.ativos,200),
+      dividas:sanitize(S.dividas,50),
+      diario:sanitize(S.diario,365),
       trialStart:S.trialStart||'',
       premium:S.premium||'',
       updatedAt:new Date().toISOString()
@@ -1156,7 +1174,11 @@ function doLogin(){
     const firstTime=!localStorage.getItem('lliw_ob_done_'+em);
     if(firstTime){showOnboarding();}else{launchApp();}
   }).catch(e=>{
-    err.textContent='E-mail ou senha incorretos.';
+    let msg='E-mail ou senha incorretos.';
+    if(e&&e.code==='auth/too-many-requests') msg='Muitas tentativas. Aguarde alguns minutos.';
+    if(e&&e.code==='auth/network-request-failed') msg='Sem conexão. Verifique sua internet.';
+    if(e&&e.code==='auth/user-disabled') msg='Conta desativada. Entre em contato.';
+    err.textContent=msg;
     err.style.color='var(--red)';err.style.display='block';
   });
 }
@@ -1165,7 +1187,10 @@ function doRegister(){
   const em=document.getElementById('reg-email').value.trim().toLowerCase();
   const pw=document.getElementById('reg-pass').value;
   const err=document.getElementById('reg-err');
+  const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if(!nm||!em||pw.length<6){err.textContent='Preencha todos os campos (senha mín. 6 caracteres).';err.style.display='block';return;}
+  if(!emailRegex.test(em)){err.textContent='E-mail inválido.';err.style.display='block';return;}
+  if(nm.length<2){err.textContent='Nome muito curto.';err.style.display='block';return;}
   if(typeof window.fbRegister !== 'function'){
     // Fallback local
     const stored=JSON.parse(localStorage.getItem('lliw_users')||'{}');
@@ -1308,26 +1333,47 @@ function updateTimer(){
   document.getElementById('trial-timer').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 function checkPaywall(){
-  // Verificar trial
-  if(!S.premium&&S.trialStart&&Date.now()-parseInt(S.trialStart)>86400000)openPaywall();
+  // Premium e trial verificados via Firestore no login
+  // localStorage apenas como cache — não é fonte de verdade
+  if(!S.premium&&S.trialStart){
+    const elapsed=Date.now()-parseInt(S.trialStart);
+    if(elapsed>86400000) openPaywall();
+  }
 }
-function resetTrialForTest(){
-  S.trialStart=Date.now().toString();
-  localStorage.setItem('lliw_trial',S.trialStart);
-  document.getElementById('paywall').style.display='none';
-  toast('Trial reiniciado — 24h a partir de agora','t-info');
-}
+
 function openPaywall(){document.getElementById('paywall').style.display='flex';}
 function activateKey(){
   const k=document.getElementById('pw-key-input').value.trim().toUpperCase();
   const err=document.getElementById('pw-err');
-  if(VALID_KEYS.includes(k)||k.startsWith('LLIW-')){
+  if(!k||!k.startsWith('LLIW-')){
+    err.textContent='Chave inválida. Formato: LLIW-XXXX-XXXX';
+    err.style.display='block';return;
+  }
+  err.style.display='none';
+  // Salvar premium no Firestore
+  if(typeof window.fbSave==='function'&&S.user&&S.user.uid){
+    window.fbSave(S.user.uid,{
+      premium:k,
+      premiumAt:new Date().toISOString(),
+      trialStart:S.trialStart||Date.now().toString()
+    }).then(()=>{
+      S.premium=k;
+      document.getElementById('paywall').style.display='none';
+      document.getElementById('sb-trial').style.display='none';
+      toast('Acesso Premium ativado! Bem-vindo ao LLIW.','t-ok');
+    }).catch(()=>{
+      // Fallback local se Firestore indisponível
+      S.premium=k;localStorage.setItem('lliw_premium',k);
+      document.getElementById('paywall').style.display='none';
+      document.getElementById('sb-trial').style.display='none';
+      toast('Acesso Premium ativado!','t-ok');
+    });
+  } else {
     S.premium=k;localStorage.setItem('lliw_premium',k);
     document.getElementById('paywall').style.display='none';
     document.getElementById('sb-trial').style.display='none';
-    err.style.display='none';
-    toast('Acesso Premium ativado! Bem-vindo.','t-ok');
-  } else {err.style.display='block';}
+    toast('Acesso Premium ativado!','t-ok');
+  }
 }
 function copyPixKey(){
   const k=document.getElementById('pw-pix-key').textContent;
@@ -1495,8 +1541,10 @@ function addRec(){
   const valor=parseFloat(document.getElementById('r-valor').value)||0;
   const data=document.getElementById('r-data').value;
   const tipo=document.getElementById('r-tipo').value;
-  if(!data||!valor){toast('Preencha valor e data','t-err');return;}
-  S.recs.push({id:Date.now(),origem,categoria:cat,valor,data,tipo});
+  if(!data||!valor||valor<=0){toast('Preencha valor e data válidos','t-err');return;}
+  if(valor>99999999){toast('Valor muito alto. Verifique.','t-err');return;}
+  const origemClean=(origem||'').substring(0,100);
+  S.recs.push({id:Date.now(),origem:origemClean,categoria:cat,valor:parseFloat(valor.toFixed(2)),data,tipo});
   save();renderRec();toast('Recebimento registrado!');
   document.getElementById('r-origem').value='';document.getElementById('r-valor').value='';
 }
@@ -2385,8 +2433,13 @@ function calcJC(){
   const tfq=document.getElementById('jc-tfq').value;
   let n=parseFloat(document.getElementById('jc-n').value)||0;
   const per=document.getElementById('jc-per').value;
-  if(tfq==='a')taxa=Math.pow(1+taxa/100,1/12)-1; else taxa=taxa/100;
-  if(per==='a')n=n*12;
+  if(ci<0)ci=0; if(aporte<0)aporte=0; if(taxa<0)taxa=0; if(n<0)n=0;
+  if(taxa>200){toast('Taxa muito alta. Verifique o valor.','t-err');return;}
+  if(n>600){toast('Período máximo: 600 meses / 50 anos.','t-err');return;}
+  // Converter taxa para mensal
+  if(tfq==='a') taxa=Math.pow(1+taxa/100,1/12)-1; else taxa=taxa/100;
+  // Converter período para meses
+  if(per==='a') n=Math.round(n*12);
   let m=ci;const labels=[],vals=[],aportArr=[];
   const step=Math.max(1,Math.floor(n/24));
   for(let i=0;i<=n;i++){
