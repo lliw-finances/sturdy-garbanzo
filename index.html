@@ -328,28 +328,35 @@ tr:hover td{background:rgba(255,255,255,0.015);}
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyD8-GSmb8qrGrhZ0Fjk-xbLAPep4LPMeqE",
-    authDomain: "lliw-app.firebaseapp.com",
-    projectId: "lliw-app",
-    storageBucket: "lliw-app.firebasestorage.app",
-    messagingSenderId: "1027771456973",
-    appId: "1:1027771456973:web:2795e2065dcb0209387884"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const _auth = firebase.auth();
-  const _db = firebase.firestore();
+  try {
+    const firebaseConfig = {
+      apiKey: "AIzaSyD8-GSmb8qrGrhZ0Fjk-xbLAPep4LPMeqE",
+      authDomain: "lliw-app.firebaseapp.com",
+      projectId: "lliw-app",
+      storageBucket: "lliw-app.firebasestorage.app",
+      messagingSenderId: "1027771456973",
+      appId: "1:1027771456973:web:2795e2065dcb0209387884"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const _auth = firebase.auth();
+    const _db = firebase.firestore();
 
-  window.fbLogin = (email, password) => _auth.signInWithEmailAndPassword(email, password);
-  window.fbRegister = (email, password) => _auth.createUserWithEmailAndPassword(email, password);
-  window.fbForgot = (email) => _auth.sendPasswordResetEmail(email);
-  window.fbSignOut = () => _auth.signOut();
-  window.fbSave = async (uid, data) => {
-    try { await _db.collection("usuarios").doc(uid).set(data, {merge:true}); } catch(e) { console.error(e); }
-  };
-  window.fbLoad = async (uid) => {
-    try { const snap = await _db.collection("usuarios").doc(uid).get(); return snap.exists ? snap.data() : null; } catch(e) { return null; }
-  };
+    window.fbLogin = (email, password) => _auth.signInWithEmailAndPassword(email, password);
+    window.fbRegister = (email, password) => _auth.createUserWithEmailAndPassword(email, password);
+    window.fbForgot = (email) => _auth.sendPasswordResetEmail(email);
+    window.fbSignOut = () => _auth.signOut();
+    window.fbSave = async (uid, data) => {
+      try { await _db.collection("usuarios").doc(uid).set(data, {merge:true}); } catch(e) { console.error("fbSave erro:",e); }
+    };
+    window.fbLoad = async (uid) => {
+      try { const snap = await _db.collection("usuarios").doc(uid).get(); return snap.exists ? snap.data() : null; } catch(e) { return null; }
+    };
+    window._firebaseReady = true;
+    console.log("Firebase carregado com sucesso");
+  } catch(e) {
+    window._firebaseReady = false;
+    console.error("Firebase falhou ao carregar:", e);
+  }
 </script>
 
 </head>
@@ -1140,18 +1147,9 @@ function doLogin(){
   const err=document.getElementById('li-err');
   if(!em||!pw){err.textContent='Preencha e-mail e senha.';err.style.display='block';return;}
   // Verificar se Firebase carregou
-  if(typeof window.fbLogin !== 'function'){
-    // Fallback local se Firebase não disponível
-    const stored=JSON.parse(localStorage.getItem('lliw_users')||'{}');
-    if(stored[em]===pw){
-      err.style.display='none';
-      S.user={email:em,name:em.split('@')[0],uid:em};
-      if(!S.trialStart){S.trialStart=Date.now().toString();localStorage.setItem('lliw_trial',S.trialStart);}
-      const firstTime=!localStorage.getItem('lliw_ob_done_'+em);
-      if(firstTime){showOnboarding();}else{launchApp();}
-    } else {
-      err.textContent='E-mail ou senha incorretos.';err.style.color='var(--red)';err.style.display='block';
-    }
+  if(typeof window.fbLogin !== 'function' || !window._firebaseReady){
+    err.textContent='Erro de conexão. Verifique sua internet e tente novamente.';
+    err.style.color='var(--red)';err.style.display='block';
     return;
   }
   err.textContent='Entrando...';err.style.display='block';err.style.color='var(--text3)';
@@ -1191,14 +1189,9 @@ function doRegister(){
   if(!nm||!em||pw.length<6){err.textContent='Preencha todos os campos (senha mín. 6 caracteres).';err.style.display='block';return;}
   if(!emailRegex.test(em)){err.textContent='E-mail inválido.';err.style.display='block';return;}
   if(nm.length<2){err.textContent='Nome muito curto.';err.style.display='block';return;}
-  if(typeof window.fbRegister !== 'function'){
-    // Fallback local
-    const stored=JSON.parse(localStorage.getItem('lliw_users')||'{}');
-    if(stored[em]){err.textContent='E-mail já cadastrado.';err.style.display='block';return;}
-    stored[em]=pw;localStorage.setItem('lliw_users',JSON.stringify(stored));
-    S.user={email:em,name:nm,uid:em};
-    S.trialStart=Date.now().toString();localStorage.setItem('lliw_trial',S.trialStart);
-    showOnboarding();return;
+  if(typeof window.fbRegister !== 'function' || !window._firebaseReady){
+    err.textContent='Erro de conexão. Verifique sua internet e tente novamente.';
+    err.style.color='var(--red)';err.style.display='block';return;
   }
   err.textContent='Criando conta...';err.style.display='block';err.style.color='var(--text3)';
   window.fbRegister(em,pw).then(cred=>{
@@ -1345,35 +1338,40 @@ function openPaywall(){document.getElementById('paywall').style.display='flex';}
 function activateKey(){
   const k=document.getElementById('pw-key-input').value.trim().toUpperCase();
   const err=document.getElementById('pw-err');
-  if(!k||!k.startsWith('LLIW-')){
-    err.textContent='Chave inválida. Formato: LLIW-XXXX-XXXX';
+  if(!k||k.length<10){
+    err.textContent='Chave inválida.';
+    err.style.display='block';return;
+  }
+  if(!window._firebaseReady){
+    err.textContent='Erro de conexão. Verifique sua internet.';
     err.style.display='block';return;
   }
   err.style.display='none';
-  // Salvar premium no Firestore
-  if(typeof window.fbSave==='function'&&S.user&&S.user.uid){
-    window.fbSave(S.user.uid,{
-      premium:k,
-      premiumAt:new Date().toISOString(),
-      trialStart:S.trialStart||Date.now().toString()
-    }).then(()=>{
-      S.premium=k;
-      document.getElementById('paywall').style.display='none';
-      document.getElementById('sb-trial').style.display='none';
-      toast('Acesso Premium ativado! Bem-vindo ao LLIW.','t-ok');
-    }).catch(()=>{
-      // Fallback local se Firestore indisponível
-      S.premium=k;localStorage.setItem('lliw_premium',k);
-      document.getElementById('paywall').style.display='none';
-      document.getElementById('sb-trial').style.display='none';
-      toast('Acesso Premium ativado!','t-ok');
-    });
-  } else {
-    S.premium=k;localStorage.setItem('lliw_premium',k);
+  // Verificar chave na coleção "chaves" do Firestore
+  // Você cadastra manualmente: chaves/{LLIW-XXXX} com campo ativo:true
+  var _db=firebase.firestore();
+  _db.collection('chaves').doc(k).get().then(function(snap){
+    if(snap.exists && snap.data().ativo===true){
+      return firebase.firestore().collection('usuarios').doc(S.user.uid).set({
+        premium:k,
+        premiumAt:new Date().toISOString()
+      },{merge:true});
+    } else {
+      throw new Error('invalida');
+    }
+  }).then(function(){
+    S.premium=k;
     document.getElementById('paywall').style.display='none';
     document.getElementById('sb-trial').style.display='none';
-    toast('Acesso Premium ativado!','t-ok');
-  }
+    toast('Acesso Premium ativado! Bem-vindo ao LLIW.','t-ok');
+  }).catch(function(e){
+    if(e.message==='invalida'){
+      err.textContent='Chave inválida ou já utilizada.';
+    } else {
+      err.textContent='Erro ao validar. Tente novamente.';
+    }
+    err.style.display='block';
+  });
 }
 function copyPixKey(){
   const k=document.getElementById('pw-pix-key').textContent;
