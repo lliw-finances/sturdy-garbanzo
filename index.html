@@ -453,7 +453,7 @@ tr:hover td{background:rgba(255,255,255,0.015);}
       <div class="sb-item" onclick="goPage('educacao',this)"><div class="sb-icon">◎</div>Educação</div>
       <div class="sb-section">Extra</div>
       <div class="sb-item" onclick="goPage('radar',this)"><div class="sb-icon">◐</div>Radar</div>
-      <div class="sb-item" onclick="openPaywall()"><div class="sb-icon">★</div>Assinar Premium</div>
+      <div class="sb-item" id="sb-premium-item" onclick="openPaywall()"><div class="sb-icon">★</div>Assinar Premium</div>
     </nav>
     <div class="sb-bottom">
       <div class="sb-user">
@@ -1064,6 +1064,24 @@ const S={
   meta: parseFloat(localStorage.getItem('lliw_meta')||'500'),
 };
 
+
+// ═══ NOTA DE SEGURANÇA ═══
+// Configure as regras do Firestore no console Firebase → Firestore → Regras:
+// 
+// rules_version = '2';
+// service cloud.firestore {
+//   match /databases/{database}/documents {
+//     match /usuarios/{userId} {
+//       allow read, write: if request.auth != null && request.auth.uid == userId;
+//     }
+//     match /chaves/{chaveId} {
+//       allow read: if request.auth != null;
+//       allow write: if false;
+//     }
+//   }
+// }
+// ════════════════════════
+
 // ═══ SEGURANÇA: escape HTML para prevenir XSS ═══
 function escHTML(str){
   if(typeof str!=='string') return String(str||'');
@@ -1167,8 +1185,10 @@ function doLogin(){
       if(cloudData.dividas) S.dividas=cloudData.dividas;
       if(cloudData.diario) S.diario=cloudData.diario;
       if(cloudData.trialStart) S.trialStart=cloudData.trialStart;
-      if(cloudData.premium) S.premium=cloudData.premium;
+      if(cloudData.premium){ S.premium=cloudData.premium; localStorage.setItem('lliw_premium',cloudData.premium); }
     }
+    // Se tem premium no Firestore, garantir que está no estado
+    if(cloudData && cloudData.premium) S.premium = cloudData.premium;
     const firstTime=!localStorage.getItem('lliw_ob_done_'+em);
     if(firstTime){showOnboarding();}else{launchApp();}
   }).catch(e=>{
@@ -1303,6 +1323,27 @@ function launchApp(){
   save();
   renderTicker();renderDashboard();renderEducacao();renderRadar();
   checkPaywall();
+  atualizarMenuPremium();
+}
+
+function atualizarMenuPremium(){
+  var sbPrem=document.getElementById('sb-premium-item');
+  var sbTrial=document.getElementById('sb-trial');
+  if(S.premium){
+    // Esconder botão de assinar
+    if(sbPrem) sbPrem.style.display='none';
+    // Transformar trial em badge Premium
+    if(sbTrial){
+      sbTrial.style.background='linear-gradient(135deg,rgba(30,217,122,0.1),rgba(124,106,247,0.1))';
+      sbTrial.style.borderColor='rgba(30,217,122,0.3)';
+      sbTrial.innerHTML=
+        '<div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--green);font-weight:700;margin-bottom:3px;">Plano Premium</div>'
+        +'<div style="font-family:DM Mono,monospace;font-size:14px;color:var(--green);letter-spacing:1px;font-weight:500;">✓ Ativo</div>'
+        +'<div style="font-size:9px;color:var(--text3);margin-top:2px;">Acesso completo liberado</div>';
+    }
+  } else {
+    if(sbPrem) sbPrem.style.display='flex';
+  }
 }
 function updateDate(){
   document.getElementById('top-date').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
@@ -1310,7 +1351,7 @@ function updateDate(){
 
 // ═══════════════════ TRIAL TIMER ═══════════════════
 function startTrialTimer(){
-  if(S.premium){document.getElementById('sb-trial').style.display='none';return;}
+  if(S.premium){ return; }
   updateTimer();setInterval(updateTimer,1000);
 }
 function updateTimer(){
@@ -1363,6 +1404,7 @@ function activateKey(){
     S.premium=k;
     document.getElementById('paywall').style.display='none';
     document.getElementById('sb-trial').style.display='none';
+    atualizarMenuPremium();
     toast('Acesso Premium ativado! Bem-vindo ao LLIW.','t-ok');
   }).catch(function(e){
     if(e.message==='invalida'){
