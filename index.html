@@ -17,7 +17,7 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://lliw-finances.github.io/sturdy-garbanzo/">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
   --bg:#05050a;--bg2:#0a0a12;--bg3:#0f0f1a;--bg4:#161622;--card:#0d0d18;
@@ -1367,7 +1367,13 @@ function launchApp(){
   // Migrar dívidas antigas sem campo pagamentos
   S.dividas = S.dividas.map(d => ({...d, pagamentos: d.pagamentos||[], saldoInicial: d.saldoInicial||d.saldoOriginal||d.saldo}));
   save();
-  renderTicker();renderDashboard();renderEducacao();renderRadar();
+  renderTicker();renderEducacao();renderRadar();
+  // Aguardar DOM estar pintado antes de criar charts
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      renderDashboard();
+    });
+  });
   // Verificar premium no Firestore (fonte de verdade)
   if(S.user&&S.user.uid&&window._firebaseReady){
     firebase.firestore().collection('usuarios').doc(S.user.uid).get().then(function(snap){
@@ -1487,18 +1493,33 @@ function copyPixKey(){
 // ═══════════════════ NAVIGATION ═══════════════════
 const PAGE_TITLES={dashboard:'Dashboard',recebimentos:'Recebimentos',despesas:'Despesas',planejamento:'Planejamento',ativos:'Meus Ativos',mercado:'Mercado',dividas:'Gestão de Dívidas',diario:'Diário Financeiro',simuladores:'Simuladores',calculadoras:'Calculadora',educacao:'Educação Financeira',radar:'Radar de Notícias',resetar:'Reiniciar Dados'};
 function goPage(id,el){
+  // Capturar página atual ANTES de mudar
+  const pageChartMap={
+    'dashboard':['c-rd','c-desp-cat','c-sal-inv','c-rp','c-proj'],
+    'planejamento':['c-5030','c-plan-anual'],
+    'ativos':['c-cart','c-cart-tipo'],
+    'dividas':['c-dividas'],
+    'simuladores':['c-jc','c-cmp'],
+    'mercado':['c-mkt-comp']
+  };
+  const prevPage=document.querySelector('.page.active');
+  const prevId=prevPage?prevPage.id.replace('pg-',''):'';
+  // Destruir charts da página anterior
+  if(pageChartMap[prevId]){
+    pageChartMap[prevId].forEach(function(cid){ killChart(cid); });
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('active'));
   document.getElementById('pg-'+id).classList.add('active');
   if(el)el.classList.add('active');
   document.getElementById('page-title').textContent=PAGE_TITLES[id]||id;
   document.getElementById('sidebar').classList.remove('open');
-  // Cleanup: destruir charts da página anterior para evitar memory leak
-  const chartIds=['c-rd','c-desp-cat','c-sal-inv','c-rp','c-proj','c-5030','c-plan-anual',
-    'c-cart','c-cart-tipo','c-dividas','c-jc','c-cmp','c-mkt-comp','c-anual'];
-  chartIds.forEach(function(cid){ killChart(cid); });
-  const renders={dashboard:renderDashboard,recebimentos:renderRec,despesas:renderDesp,planejamento:renderPlan,ativos:renderAtivos,mercado:renderMercado,dividas:renderDividas,diario:renderDiario,simuladores:()=>{calcJC();calcComparativo();},radar:renderRadar,resetar:renderResetar};
-  if(renders[id])renders[id]();
+  const renders={dashboard:renderDashboard,recebimentos:renderRec,despesas:renderDesp,planejamento:renderPlan,ativos:renderAtivos,mercado:renderMercado,dividas:renderDividas,diario:renderDiario,simuladores:function(){calcJC();calcComparativo();},radar:renderRadar,resetar:renderResetar};
+  if(renders[id]){
+    requestAnimationFrame(function(){
+      renders[id]();
+    });
+  }
 }
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
 
