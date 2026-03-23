@@ -1067,16 +1067,31 @@ tr:hover td{background:rgba(255,255,255,0.015);}
     <div class="pw-price">R$ 19,90</div>
     <div class="pw-price-sub">por mês · acesso imediato após pagamento</div>
 
-    <div class="pw-divider">Pague via Pix</div>
-    <div class="pw-pix" onclick="copyPixKey()">
-      <div class="pw-pix-label">Chave Pix · Clique para copiar</div>
-      <div class="pw-pix-key" id="pw-pix-key">dab6e95f-1628-4455-a6fa-3e53635e0e66</div>
+    <!-- Abas de pagamento -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button onclick="document.getElementById('pw-tab-chave').style.display='block';document.getElementById('pw-tab-pix').style.display='none';this.style.background='var(--accent)';this.style.color='#fff';document.getElementById('pw-btn-pix').style.background='var(--bg3)';document.getElementById('pw-btn-pix').style.color='var(--text3)';" id="pw-btn-chave" style="flex:1;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius2);font-size:12px;font-weight:700;cursor:pointer;">🔑 Tenho uma chave</button>
+      <button onclick="document.getElementById('pw-tab-pix').style.display='block';document.getElementById('pw-tab-chave').style.display='none';this.style.background='var(--accent)';this.style.color='#fff';document.getElementById('pw-btn-chave').style.background='var(--bg3)';document.getElementById('pw-btn-chave').style.color='var(--text3)';" id="pw-btn-pix" style="flex:1;padding:10px;background:var(--bg3);color:var(--text3);border:1px solid var(--border2);border-radius:var(--radius2);font-size:12px;font-weight:700;cursor:pointer;">💚 Apoiar via Pix</button>
     </div>
-    <div style="font-size:11px;color:var(--text3);margin-bottom:16px;">Pagamento manual: envie o comprovante via WhatsApp e receba sua chave.</div>
-    <div class="pw-divider">Já tenho uma chave</div>
+
+    <!-- Aba: Chave de ativação -->
+    <div id="pw-tab-chave">
+      <div class="pw-divider">Digite sua chave de ativação</div>
     <input class="pw-key-input" id="pw-key-input" placeholder="LLIW-XXXX-XXXX" maxlength="14">
     <div class="pw-err" id="pw-err">Chave inválida ou já utilizada.</div>
     <button class="btn btn-accent" style="width:100%;padding:14px;font-size:14px;" onclick="activateKey()">Ativar Chave</button>
+    <div style="font-size:10px;color:var(--text4);text-align:center;margin-top:8px;font-family:'DM Mono',monospace;">Receba sua chave por WhatsApp após o pagamento</div>
+    </div><!-- /pw-tab-chave -->
+
+    <!-- Aba: Apoio via Pix -->
+    <div id="pw-tab-pix" style="display:none;">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px;text-align:center;line-height:1.6;">Sua contribuição mantém o LLIW gratuito e em evolução. Qualquer valor é bem-vindo! 💚</div>
+      <div class="pw-pix" onclick="copyPixKey()" style="margin-bottom:12px;cursor:pointer;">
+        <div class="pw-pix-label">Chave Pix · Clique para copiar</div>
+        <div class="pw-pix-key" id="pw-pix-key">dab6e95f-1628-4455-a6fa-3e53635e0e66</div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:4px;">Envie o comprovante via WhatsApp e receba sua chave de acesso.</div>
+      <div style="font-size:10px;color:var(--text4);text-align:center;font-family:'DM Mono',monospace;">Obrigado por acreditar no LLIW 🖤</div>
+    </div><!-- /pw-tab-pix -->
 
   </div>
 </div>
