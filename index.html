@@ -1339,16 +1339,16 @@ function showOnboarding(){
   obStep=0;obAnswers={};renderOB();
 }
 function renderOB(){
-  const stepDots = '';
-  for(let si=0; si<OB_Q.length; si++){
+  var stepDots = '';
+  for(var si=0; si<OB_Q.length; si++){
     var cls = si<obStep ? 'done' : si===obStep ? 'active' : '';
     stepDots += '<div class="ob-step-dot '+cls+'"></div>';
   }
   document.getElementById('ob-steps').innerHTML = stepDots;
 
-  const q = OB_Q[obStep];
-  const optsHtml = '';
-  for(let oi=0; oi<q.opts.length; oi++){
+  var q = OB_Q[obStep];
+  var optsHtml = '';
+  for(var oi=0; oi<q.opts.length; oi++){
     optsHtml += '<button class="ob-option" onclick="selectOB('+oi+')">'
       + q.opts[oi] + '</button>';
   }
@@ -1362,6 +1362,7 @@ function renderOB(){
     +   '<button onclick="finishOB()" style="background:none;border:none;color:var(--text3);font-size:11px;cursor:pointer;">Pular →</button>'
     + '</div>';
 }
+
 
 function selectOB(i){
   var val=OB_Q[obStep].opts[i];
