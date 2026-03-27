@@ -180,31 +180,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .topbar-breadcrumb{font-size:10px;color:var(--text4);font-family:'DM Mono',monospace;display:flex;align-items:center;gap:4px;}
 .topbar-breadcrumb span{color:var(--text3);}
 .topbar-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;}
-.topbar-center{flex:1;max-width:400px;margin:0 16px;}
 .topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .topbar-date{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
 
-/* ═══════════ SEARCH BAR (Cmd+K) ═══════════ */
-.search-trigger{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius2);padding:7px 12px;cursor:pointer;transition:all 0.2s;min-width:180px;}
-.search-trigger:hover{border-color:var(--border3);background:var(--bg4);}
-.search-trigger-icon{color:var(--text4);font-size:13px;}
-.search-trigger-text{font-size:11px;color:var(--text4);flex:1;}
-.search-trigger-kbd{font-size:9px;color:var(--text4);font-family:'DM Mono',monospace;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:2px 5px;}
-#search-overlay{display:none;position:fixed;inset:0;z-index:9998;background:rgba(5,5,10,0.8);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;padding-top:18vh;}
-#search-overlay.active{display:flex;}
-.search-modal{background:var(--card);border:1px solid var(--border2);border-radius:16px;width:95%;max-width:540px;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 40px rgba(124,106,247,0.08);animation:searchIn 0.2s cubic-bezier(0.16,1,0.3,1);}
+/* FIX-04: Search CSS removido */
 @keyframes searchIn{from{opacity:0;transform:scale(0.96) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.search-input-wrap{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border);}
-.search-input-wrap svg{flex-shrink:0;color:var(--text3);}
-.search-input{flex:1;background:none;border:none;color:var(--text);font-size:15px;outline:none;}
-.search-input::placeholder{color:var(--text4);}
-.search-results{max-height:320px;overflow-y:auto;padding:8px;}
-.search-result-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius2);cursor:pointer;transition:background 0.15s;}
-.search-result-item:hover,.search-result-item.selected{background:var(--bg3);}
-.search-result-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-.search-result-name{font-size:13px;font-weight:500;}
-.search-result-sub{font-size:10px;color:var(--text3);}
-.search-hint{padding:12px 18px;font-size:10px;color:var(--text4);text-align:center;border-top:1px solid var(--border);}
 
 /* ═══════════ NOTIFICATION BELL ═══════════ */
 .notif-btn{position:relative;width:34px;height:34px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;font-size:14px;color:var(--text3);}
@@ -379,7 +359,7 @@ tr:hover td{background:rgba(124,106,247,0.03);}
 .tick-chg{font-size:10px;font-family:'DM Mono',monospace;}
 .tick-up{color:var(--green);}
 .tick-dn{color:var(--red);}
-.tick-item .live-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:3px;animation:pulse 2s ease infinite;vertical-align:middle;}
+/* FIX-08: live-dot CSS removido */
 
 /* ═══════════ RINGS ═══════════ */
 .rings-row{display:flex;gap:20px;flex-wrap:wrap;justify-content:space-around;padding:8px 0;}
@@ -489,8 +469,6 @@ tr:hover td{background:rgba(124,106,247,0.03);}
   .menu-btn{display:flex;}
   .kpi-row{grid-template-columns:repeat(2,1fr);gap:10px;}
   .bottom-nav{display:flex;}
-  .search-trigger{min-width:auto;}
-  .search-trigger-text,.search-trigger-kbd{display:none;}
   .topbar-date{display:none;}
   .greeting-card{flex-direction:column;align-items:flex-start;}
   .quick-actions{width:100%;overflow-x:auto;padding-bottom:4px;}
@@ -504,7 +482,6 @@ tr:hover td{background:rgba(124,106,247,0.03);}
   .cb{padding:12px;}
   .content{padding:12px;}
   .topbar{padding:10px 12px;}
-  .topbar-center{display:none;}
   .notif-dropdown{width:280px;right:-60px;}
 }
 @media(max-width:360px){
@@ -628,7 +605,7 @@ tr:hover td{background:rgba(124,106,247,0.03);}
     <div class="sb-logo"><span class="sb-logo-text">LLI</span><span>W</span></div>
     <div class="sb-logo-sub">Plataforma Financeira</div>
     <div class="sb-trial" id="sb-trial">
-      <div class="sb-trial-label">Periodo Trial</div>
+      <div class="sb-trial-label">Período Trial</div> <!-- FIX-07: Ortografia corrigida -->
       <div class="sb-trial-time" id="trial-timer">23:59:59</div>
       <div class="sb-trial-sub">Restante de acesso gratuito</div>
     </div>
@@ -670,13 +647,7 @@ tr:hover td{background:rgba(124,106,247,0.03);}
           <h1 class="topbar-title" id="page-title" style="font-size:17px;font-weight:700;font-family:'Syne',sans-serif;margin:0;">Dashboard</h1>
         </div>
       </div>
-      <div class="topbar-center">
-        <div class="search-trigger" id="search-trigger" onclick="openSearch()" role="button" aria-label="Busca global" tabindex="0">
-          <span class="search-trigger-icon">🔍</span>
-          <span class="search-trigger-text">Buscar...</span>
-          <span class="search-trigger-kbd">⌘K</span>
-        </div>
-      </div>
+      <!-- FIX-04: Search bar removida -->
       <div class="topbar-right">
         <div class="topbar-date" id="top-date"></div>
         <div class="notif-btn" id="notif-btn" onclick="toggleNotifs()">
@@ -1325,6 +1296,11 @@ tr:hover td{background:rgba(124,106,247,0.03);}
       <div style="font-size:10px;color:var(--text4);text-align:center;font-family:'DM Mono',monospace;">Obrigado por acreditar no LLIW 🖤</div>
     </div><!-- /pw-tab-pix -->
 
+    <!-- FIX-05: Link discreto para logout no paywall -->
+    <div style="margin-top:16px;text-align:center;">
+      <span onclick="doLogout();document.getElementById('paywall').style.display='none';" style="font-size:10px;color:var(--text4);cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='var(--text3)'" onmouseout="this.style.color='var(--text4)'">Sair da conta</span>
+    </div>
+
   </div>
 </div>
 
@@ -1357,9 +1333,12 @@ const S={
 //     match /usuarios/{userId} {
 //       allow read, write: if request.auth != null && request.auth.uid == userId;
 //     }
+//     // FIX-02: Regra atualizada — chave só pode ser marcada como usada uma vez
 //     match /chaves/{chaveId} {
 //       allow read: if request.auth != null;
-//       allow write: if false;
+//       allow update: if request.auth != null
+//         && resource.data.usadaPor == null
+//         && request.resource.data.usadaPor == request.auth.uid;
 //     }
 //   }
 // }
@@ -1371,9 +1350,9 @@ function escHTML(str){
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
 }
 
-const VALID_KEYS = []; // Chaves validadas no Firebase Console
+// FIX-06: VALID_KEYS removido (código morto)
 const TRIAL_DURATION_MS = 24 * 60 * 60 * 1000; // 24 horas — altere aqui para mudar o trial
-const USERS = {}; // Credenciais gerenciadas pelo Firebase futuramente
+// FIX-06: USERS removido (código morto)
 const fBRL = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
 const fPct = v => (v||0).toFixed(1)+'%';
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -1409,6 +1388,8 @@ function save(){
       diario:sanitize(S.diario,365),
       trialStart:S.trialStart||'',
       premium:S.premium||'',
+      meta:S.meta, // FIX-09: Sincronizar meta com Firestore
+      name:S.user.name||'', // FIX-03: Persistir nome no Firestore
       updatedAt:new Date().toISOString()
     });
   }
@@ -1486,9 +1467,20 @@ function doLogin(){
       if(cloudData.diario) S.diario=cloudData.diario;
       if(cloudData.trialStart) S.trialStart=cloudData.trialStart;
       if(cloudData.premium){ S.premium=cloudData.premium; localStorage.setItem('lliw_premium',cloudData.premium); }
+      // FIX-03: Carregar nome do Firestore se existir
+      if(cloudData.name) S.user.name=cloudData.name;
+      // FIX-09: Carregar meta do Firestore se existir
+      if(cloudData.meta!==undefined&&cloudData.meta!==null) S.meta=parseFloat(cloudData.meta)||500;
     }
     // Se tem premium no Firestore, garantir que está no estado
     if(cloudData && cloudData.premium) S.premium = cloudData.premium;
+    // FIX-01: Se NÃO tem trialStart E NÃO tem premium, cravar o início do trial agora
+    if(!S.trialStart && !S.premium){
+      S.trialStart=Date.now().toString();
+      if(window._firebaseReady&&window.fbSave){
+        window.fbSave(uid,{trialStart:S.trialStart});
+      }
+    }
     const firstTime=!localStorage.getItem('lliw_ob_done_'+em);
     if(firstTime){showOnboarding();}else{launchApp();}
   }).catch(e=>{
@@ -1523,9 +1515,9 @@ function doRegister(){
     S.recs=[];S.desps=[];S.ativos=[];S.dividas=[];S.diario=[];
     S.user={email:em,name:nm,uid};
     S.trialStart=Date.now().toString();
-    // Salvar trialStart no Firestore imediatamente
+    // FIX-03: Salvar nome + trialStart no Firestore imediatamente
     if(window._firebaseReady&&window.fbSave){
-      window.fbSave(uid,{trialStart:S.trialStart,premium:null});
+      window.fbSave(uid,{trialStart:S.trialStart,premium:null,name:nm});
     }
     showOnboarding();
   }).catch(e=>{
@@ -1649,9 +1641,20 @@ function launchApp(){
 function atualizarMenuPremium(){
   var sbPrem=document.getElementById('sb-premium-item');
   var sbTrial=document.getElementById('sb-trial');
+  // FIX-10: Badge Premium visual na sidebar
+  var sbNm=document.getElementById('sb-nm');
+  var existingBadge=document.getElementById('sb-premium-badge');
   if(S.premium){
     // Esconder botão de assinar
     if(sbPrem) sbPrem.style.display='none';
+    // FIX-10: Mostrar selo ✦ PREMIUM próximo ao nome
+    if(sbNm && !existingBadge){
+      var badge=document.createElement('span');
+      badge.id='sb-premium-badge';
+      badge.textContent='✦ PREMIUM';
+      badge.style.cssText='display:inline-block;font-size:8px;color:var(--gold);font-weight:700;letter-spacing:1.2px;margin-left:6px;vertical-align:middle;';
+      sbNm.appendChild(badge);
+    }
     // Transformar trial em badge Premium
     if(sbTrial){
       sbTrial.style.background='linear-gradient(135deg,rgba(30,217,122,0.1),rgba(124,106,247,0.1))';
@@ -1663,6 +1666,7 @@ function atualizarMenuPremium(){
     }
   } else {
     if(sbPrem) sbPrem.style.display='flex';
+    if(existingBadge) existingBadge.remove();
   }
 }
 function updateDate(){
@@ -1676,8 +1680,16 @@ function startTrialTimer(){
 }
 function updateTimer(){
   if(S.premium)return;
-
-  const start=parseInt(S.trialStart||Date.now());
+  // FIX-01: Sem fallback Date.now() — se trialStart não existe, setar agora
+  if(!S.trialStart){
+    S.trialStart=Date.now().toString();
+    if(S.user&&S.user.uid&&window._firebaseReady&&window.fbSave){
+      window.fbSave(S.user.uid,{trialStart:S.trialStart});
+    }
+    document.getElementById('trial-timer').textContent='Iniciando...';
+    return;
+  }
+  const start=parseInt(S.trialStart);
   const elapsed=Date.now()-start;
   const remaining=Math.max(0,TRIAL_DURATION_MS-elapsed);
   if(remaining===0){openPaywall();return;}
@@ -1686,16 +1698,24 @@ function updateTimer(){
   const s=Math.floor((remaining%60000)/1000);
   document.getElementById('trial-timer').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
+// FIX-01: checkPaywall reescrito — lógica correta de trial
 function checkPaywall(){
-  // Premium e trial verificados via Firestore no login
-  // localStorage apenas como cache — não é fonte de verdade
-  if(!S.premium&&S.trialStart){
+  if(S.premium) return; // Premium → acesso liberado
+  if(S.trialStart){
+    // Trial existe → verificar se expirou
     const elapsed=Date.now()-parseInt(S.trialStart);
     if(elapsed>TRIAL_DURATION_MS) openPaywall();
+  } else {
+    // Sem trialStart → primeiro acesso, cravar agora e deixar continuar
+    S.trialStart=Date.now().toString();
+    if(S.user&&S.user.uid&&window._firebaseReady&&window.fbSave){
+      window.fbSave(S.user.uid,{trialStart:S.trialStart});
+    }
   }
 }
 
 function openPaywall(){document.getElementById('paywall').style.display='flex';}
+// FIX-02: activateKey com transaction para invalidar chave após uso
 function activateKey(){
   const k=document.getElementById('pw-key-input').value.trim().toUpperCase();
   const err=document.getElementById('pw-err');
@@ -1708,18 +1728,23 @@ function activateKey(){
     err.style.display='block';return;
   }
   err.style.display='none';
-  // Verificar chave na coleção "chaves" do Firestore
-  // Você cadastra manualmente: chaves/{LLIW-XXXX} com campo ativo:true
+  // Verificar e invalidar chave usando transaction
+  // Cadastre chaves no Firestore: chaves/{LLIW-XXXX} com campos ativo:true, usadaPor:null
   var _db=firebase.firestore();
-  _db.collection('chaves').doc(k).get().then(function(snap){
-    if(snap.exists && snap.data().ativo===true){
-      return firebase.firestore().collection('usuarios').doc(S.user.uid).set({
-        premium:k,
-        premiumAt:new Date().toISOString()
-      },{merge:true});
-    } else {
-      throw new Error('invalida');
-    }
+  var chaveRef=_db.collection('chaves').doc(k);
+  var userRef=_db.collection('usuarios').doc(S.user.uid);
+  _db.runTransaction(function(tx){
+    return tx.get(chaveRef).then(function(snap){
+      if(!snap.exists||snap.data().ativo!==true){
+        throw new Error('invalida');
+      }
+      if(snap.data().usadaPor && snap.data().usadaPor!==null){
+        throw new Error('invalida');
+      }
+      // FIX-02: Marcar chave como usada dentro da transaction
+      tx.update(chaveRef,{ativo:false,usadaPor:S.user.uid,usadaEm:new Date().toISOString()});
+      tx.set(userRef,{premium:k,premiumAt:new Date().toISOString()},{merge:true});
+    });
   }).then(function(){
     S.premium=k;
     document.getElementById('paywall').style.display='none';
@@ -1834,9 +1859,10 @@ const TICKER_DATA=[
   {n:'EUR',v:'R$6,41',c:'+0,1%',up:true},{n:'BTC',v:'$84.2k',c:'+2,1%',up:true},
   {n:'IPCA',v:'4,83%',c:'-0,1',up:false},{n:'IGP-M',v:'6,12%',c:'+0,2',up:true},
 ];
+// FIX-08: Removido indicador LIVE enganoso, adicionado (ref.)
 function renderTicker(){
   document.getElementById('ticker').innerHTML=TICKER_DATA.map(t=>`
-    <div class="tick-item"><div class="tick-name"><span class="live-dot"></span>${t.n}</div><div class="tick-val">${t.v}</div>
+    <div class="tick-item"><div class="tick-name">${t.n} <span style="font-size:7px;color:var(--text4);font-weight:400;">(ref.)</span></div><div class="tick-val">${t.v}</div>
     <div class="tick-chg ${t.up?'tick-up':'tick-dn'}">${t.up?'▲':'▼'} ${t.c}</div></div>`).join('');
 }
 
@@ -3028,53 +3054,10 @@ function toast(msg,type='t-ok'){
   setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),400);},3500);
 }
 
-// ═══════════════════ SEARCH (Cmd+K) ═══════════════════
-function openSearch(){
-  document.getElementById('search-overlay').style.display='flex';document.getElementById('search-overlay').classList.add('active');
-  const inp=document.getElementById('search-input');
-  inp.value='';inp.focus();
-  document.getElementById('search-results').innerHTML='';
-}
-function closeSearch(){document.getElementById('search-overlay').classList.remove('active');document.getElementById('search-overlay').style.display='none';}
+// FIX-04: Search (Cmd+K) removido — mantido Escape para fechar modais/notificações
 document.addEventListener('keydown',function(e){
-  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openSearch();}
-  if(e.key==='Escape'){closeSearch();closeConfirm();closeNotifs();}
+  if(e.key==='Escape'){closeConfirm();closeNotifs();}
 });
-function doSearch(q){
-  const r=document.getElementById('search-results');
-  if(!q||q.length<2){r.innerHTML='';return;}
-  q=q.toLowerCase();
-  let results=[];
-  // Search in pages
-  Object.keys(PAGE_TITLES).forEach(k=>{
-    if(PAGE_TITLES[k].toLowerCase().includes(q))
-      results.push({name:PAGE_TITLES[k],sub:'Página',icon:'📄',action:"goPage('"+k+"',document.querySelector('[data-tooltip=\""+PAGE_TITLES[k]+"\"]'))"});
-  });
-  // Search in recs
-  S.recs.forEach(rec=>{
-    if((rec.origem||'').toLowerCase().includes(q)||(rec.categoria||'').toLowerCase().includes(q))
-      results.push({name:(rec.origem||'Receita')+' — '+fBRL(rec.valor),sub:'Recebimento · '+rec.data,icon:'💰',action:"goPage('recebimentos',document.querySelectorAll('.sb-item')[1])"});
-  });
-  // Search in desps
-  S.desps.forEach(d=>{
-    if((d.descricao||'').toLowerCase().includes(q)||(d.categoria||'').toLowerCase().includes(q))
-      results.push({name:(d.descricao||'Despesa')+' — '+fBRL(d.valor),sub:'Despesa · '+d.data,icon:'💸',action:"goPage('despesas',document.querySelectorAll('.sb-item')[2])"});
-  });
-  // Search in ativos
-  S.ativos.forEach(a=>{
-    if((a.ticker||'').toLowerCase().includes(q))
-      results.push({name:a.ticker+' — '+fBRL(a.qtd*a.preco),sub:'Ativo · '+a.tipo,icon:'📈',action:"goPage('ativos',document.querySelectorAll('.sb-item')[4])"});
-  });
-  // Search in dividas
-  S.dividas.forEach(d=>{
-    if((d.nome||'').toLowerCase().includes(q))
-      results.push({name:d.nome+' — '+fBRL(d.saldo),sub:'Dívida · '+d.tipo,icon:'⚡',action:"goPage('dividas',document.querySelectorAll('.sb-item')[6])"});
-  });
-  results=results.slice(0,8);
-  r.innerHTML=results.length?results.map(item=>
-    '<div class="search-result-item" onclick="'+item.action+';closeSearch()"><div class="search-result-icon" style="background:var(--bg3)">'+item.icon+'</div><div><div class="search-result-name">'+item.name+'</div><div class="search-result-sub">'+item.sub+'</div></div></div>'
-  ).join(''):'<div style="padding:20px;text-align:center;color:var(--text4);font-size:12px;">Nenhum resultado para "'+escHTML(q)+'"</div>';
-}
 
 // ═══════════════════ NOTIFICATIONS ═══════════════════
 function toggleNotifs(){
@@ -3179,18 +3162,7 @@ function animateValue(el,start,end,duration){
 
 </script>
 
-<!-- ══════════ SEARCH OVERLAY ══════════ -->
-<div id="search-overlay" style="display:none" onclick="if(event.target===this)closeSearch()">
-  <div class="search-modal">
-    <div class="search-input-wrap">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <input class="search-input" id="search-input" placeholder="Buscar receitas, despesas, ativos, dívidas..." oninput="doSearch(this.value)" autocomplete="off">
-      <span style="font-size:10px;color:var(--text4);font-family:'DM Mono',monospace;cursor:pointer" onclick="closeSearch()">ESC</span>
-    </div>
-    <div class="search-results" id="search-results"></div>
-    <div class="search-hint">Navegue com ↑↓ · Enter para selecionar · ESC para fechar</div>
-  </div>
-</div>
+<!-- FIX-04: Search overlay removido -->
 
 <!-- ══════════ CONFIRM MODAL ══════════ -->
 <div id="confirm-modal" style="display:none">
@@ -3205,8 +3177,7 @@ function animateValue(el,start,end,duration){
   </div>
 </div>
 
-<!-- ══════════ TOAST CONTAINER ══════════ -->
-
+<!-- FIX-06: Toast container duplicado removido -->
 
 <!-- ══════════ MOBILE BOTTOM NAV ══════════ -->
 
